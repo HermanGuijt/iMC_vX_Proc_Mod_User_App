@@ -1,0 +1,1 @@
+option('qmlsink', type : 'feature', value : 'auto', description : 'Qt6 QML video sink plugin')

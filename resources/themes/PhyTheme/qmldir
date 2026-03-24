@@ -1,0 +1,2 @@
+module PhyTheme
+singleton PhyTheme 1.0 PhyTheme.qml

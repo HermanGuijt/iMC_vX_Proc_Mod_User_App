@@ -1,0 +1,31 @@
+name: build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install qt6-base-dev qt6-declarative-dev qt6-multimedia-dev
+          # Ubuntu 22.04 contains meson 0.61, which is incompatible with Qt6.1
+          # and later, so install a recent version using pip instead
+          sudo pip3 install meson ninja
+      - name: Build application using Meson Build System
+        run: |
+          meson setup build-meson --buildtype=release
+          meson compile -C build-meson
+      - name: Build application using qmake
+        run: |
+          mkdir build-qmake
+          cd build-qmake
+          qmake6 ..
+          make

@@ -1,0 +1,20 @@
+# Build output
+build/
+*.o
+*.a
+*.so
+meson-info/
+meson-logs/
+meson-private/
+
+# Qt Creator
+*.pro.user
+*.qmlproject.user
+CMakeLists.txt.user
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
