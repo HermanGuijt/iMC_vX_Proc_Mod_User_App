@@ -10,7 +10,7 @@ import PhyTheme 1.0
 T.Label {
     id: control
 
-    color: PhyTheme.black
+    color: PhyTheme.gray1
     linkColor: PhyTheme.teal1
     font: PhyTheme.font
 }

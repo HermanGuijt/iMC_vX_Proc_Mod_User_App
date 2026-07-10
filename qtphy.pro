@@ -6,11 +6,13 @@ QT += qml quick dbus
 SOURCES += \
     src/main.cpp \
     src/device_info.cpp \
-    src/rauc.cpp
+    src/rauc.cpp \
+    src/can_controller.cpp
 
 HEADERS += \
     src/device_info.hpp \
-    src/rauc.hpp
+    src/rauc.hpp \
+    src/can_controller.hpp
 
 qmlsink {
     PKGCONFIG = gstreamer-1.0

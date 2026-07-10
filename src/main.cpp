@@ -12,6 +12,7 @@
 #include <QFile>
 #include "device_info.hpp"
 #include "rauc.hpp"
+#include "can_controller.hpp"
 
 #ifdef QML_SINK
 #include "multimedia_qmlsink.hpp"
@@ -21,13 +22,10 @@ void writeDefaultSettings()
 {
     QSettings settings;
     QList<QString> enabledPages = {
-        "Image Viewer",
-        "Multimedia",
-        "RAUC – Update Client",
-        "Multitouch",
-        "Device Information",
+        "Dashboard",
         "Widget Factory",
-        "About PHYTEC"
+        "CAN Bus",
+        "About HBWT"
     };
 
     settings.beginWriteArray("enabled-pages", enabledPages.size());
@@ -74,6 +72,7 @@ int main(int argc, char *argv[])
     qmlRegisterSingletonType<DeviceInfo>("Phytec.DeviceInfo", 1, 0, "DeviceInfo",
                                          DeviceInfo::singletontypeProvider);
     qmlRegisterType<Rauc>("Phytec.Rauc", 1, 0, "Rauc");
+    qmlRegisterType<CANController>("HBWT.CAN", 1, 0, "CANController");
 
     QQmlApplicationEngine engine;
     engine.addImportPath("qrc:///themes");

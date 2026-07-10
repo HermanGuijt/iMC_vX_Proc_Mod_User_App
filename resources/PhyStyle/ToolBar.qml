@@ -16,7 +16,7 @@ T.ToolBar {
                              contentHeight + topPadding + bottomPadding)
 
     background: Rectangle {
-        implicitHeight: 40
-        color: PhyTheme.white
+        implicitHeight: 52
+        color: PhyTheme.teal3
     }
 }

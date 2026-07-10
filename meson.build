@@ -11,12 +11,14 @@ exec_dep = [qt6_dep]
 
 headers = [
   'src/device_info.hpp',
-  'src/rauc.hpp'
+  'src/rauc.hpp',
+  'src/can_controller.hpp'
 ]
 src = [
   'src/main.cpp',
   'src/device_info.cpp',
-  'src/rauc.cpp'
+  'src/rauc.cpp',
+  'src/can_controller.cpp'
 ]
 
 qmlsink_option = get_option('qmlsink')

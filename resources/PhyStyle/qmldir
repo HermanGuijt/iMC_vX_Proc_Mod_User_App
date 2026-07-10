@@ -1,0 +1,8 @@
+module PhyStyle
+Button 2.12 Button.qml
+CheckBox 2.12 CheckBox.qml
+Label 2.12 Label.qml
+TextArea 2.12 TextArea.qml
+TextField 2.12 TextField.qml
+ToolBar 2.12 ToolBar.qml
+ToolButton 2.12 ToolButton.qml

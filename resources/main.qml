@@ -1,6 +1,6 @@
 /*
  * SPDX-License-Identifier: MIT
- * Copyright (c) 2021 PHYTEC Messtechnik GmbH
+ * Restyled for HB Watertechnologie (HBWT) — www.EmbedTech.nl
  */
 
 import QtQuick 2.6
@@ -15,56 +15,38 @@ ApplicationWindow {
     width: 640
     height: 480
 
-    property int itemAngle: 55
     property int itemSize: 0.4 * width
 
     FontLoader {
         id: icons
         source: "qrc:///fonts/MaterialIcons-Regular.ttf"
     }
+
     ListModel {
         id: pageModel
 
         ListElement {
-            icon: "\ue3f4"
-            name: "Image Viewer"
-            description: "View images in a gallery"
-            page: "qrc:///pages/image_viewer.qml"
-        }
-        ListElement {
-            icon: "\ue8da"
-            name: "Multimedia"
-            description: "Play movies with hardware acceleration"
-            page: "qrc:///pages/multimedia.qml"
-        }
-        ListElement {
-            icon: "\ue8d7"
-            name: "RAUC – Update Client"
-            description: "View the RAUC status and update your device with new software"
-            page: "qrc:///pages/rauc.qml"
-        }
-        ListElement {
-            icon: "\ue913"
-            name: "Multitouch"
-            description: "Move multiple objects at once by touching them with your fingers"
-            page: "qrc:///pages/multitouch.qml"
-        }
-        ListElement {
-            icon: "\ue322"
-            name: "Device Information"
-            description: "Get information about the device's hardware and software components"
-            page: "qrc:///pages/device_info.qml"
+            icon: "\ue871"
+            name: "Dashboard"
+            description: "Irrigatie zones, bodemvocht en waterverbruik"
+            page: "qrc:///pages/dashboard.qml"
         }
         ListElement {
             icon: "\ue1bd"
             name: "Widget Factory"
-            description: "Try out different widgets and controls of Qt"
+            description: "Qt bedieningselementen en invoervelden"
             page: "qrc:///pages/widget_factory.qml"
         }
         ListElement {
+            icon: "\ue1e8"
+            name: "CAN Bus"
+            description: "CAN bus status en node detectie"
+            page: "qrc:///pages/can_status.qml"
+        }
+        ListElement {
             icon: "\ue88e"
-            name: "About PHYTEC"
-            description: "General information about PHYTEC"
+            name: "About HBWT"
+            description: "Over HB Watertechnologie"
             page: "qrc:///pages/about.qml"
         }
     }
@@ -75,52 +57,98 @@ ApplicationWindow {
         anchors.fill: parent
 
         popEnter: Transition {
-            YAnimator {
-                from: 0
-                to: 0
-                duration: 250
-                easing.type: Easing.OutCubic
-            }
+            YAnimator { from: 0; to: 0; duration: 250; easing.type: Easing.OutCubic }
         }
         popExit: Transition {
-            YAnimator {
-                from: 0
-                to: stack.height
-                duration: 250
-                easing.type: Easing.OutCubic
-            }
+            YAnimator { from: 0; to: stack.height; duration: 250; easing.type: Easing.OutCubic }
         }
         pushEnter: Transition {
-            YAnimator {
-                from: stack.height
-                to: 0
-                duration: 250
-                easing.type: Easing.OutCubic
-            }
+            YAnimator { from: stack.height; to: 0; duration: 250; easing.type: Easing.OutCubic }
         }
         pushExit: Transition {
-            YAnimator {
-                from: 0
-                to: 0
-                duration: 250
-                easing.type: Easing.OutCubic
-            }
+            YAnimator { from: 0; to: 0; duration: 250; easing.type: Easing.OutCubic }
         }
     }
 
     Rectangle {
         id: mainView
 
+        // Dark green gradient background
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: "#102518" }
+            GradientStop { position: 1.0; color: "#0d1a20" }
+        }
+
+        // ── Top brand bar ──────────────────────────────────────────────────
+        Rectangle {
+            id: brandBar
+            width: parent.width
+            height: 52
+            color: PhyTheme.teal3
+
+            RowLayout {
+                anchors.fill: parent
+                anchors.leftMargin: PhyTheme.marginBig
+                anchors.rightMargin: PhyTheme.marginBig
+                spacing: PhyTheme.marginRegular
+
+                Label {
+                    text: "\ue91c"            // spa / leaf icon
+                    font.family: icons.font.family
+                    font.pointSize: PhyTheme.font.pointSize * 1.1
+                    color: PhyTheme.teal1
+                }
+                ColumnLayout {
+                    spacing: 0
+                    Label {
+                        text: "HB Watertechnologie"
+                        font.bold: true
+                        color: PhyTheme.white
+                        font.pointSize: PhyTheme.font.pointSize * 0.7
+                    }
+                    Label {
+                        text: "Irrigatie Control System"
+                        color: PhyTheme.gray2
+                        font.pointSize: PhyTheme.font.pointSize * 0.45
+                    }
+                }
+                Item { Layout.fillWidth: true }
+                Label {
+                    id: clockLabel
+                    color: PhyTheme.gray2
+                    font.pointSize: PhyTheme.font.pointSize * 0.5
+                    Timer {
+                        interval: 10000; running: true; repeat: true
+                        onTriggered: clockLabel.text = Qt.formatTime(new Date(), "hh:mm")
+                    }
+                    Component.onCompleted: text = Qt.formatTime(new Date(), "hh:mm")
+                }
+            }
+        }
+
+        // ── Page cards (PathView) ──────────────────────────────────────────
         Component {
             id: pageDelegate
 
             Rectangle {
                 id: itemRectangle
-                color: PhyTheme.black
+                color: PhyTheme.cardDark
+                radius: 10
                 z: PathView.onPath ? PathView.z : 0
                 opacity: PathView.onPath ? PathView.pageOpacity : 0
-                width: 0.3 * parent.width
-                height: Math.min(0.36 * parent.width, 0.9 * parent.height)
+                width: 0.3 * pathView.width
+                height: Math.min(0.36 * pathView.width, 0.9 * pathView.height)
+
+                // Subtle green top-border accent
+                Rectangle {
+                    width: parent.width * 0.6
+                    height: 3
+                    radius: 2
+                    anchors.top: parent.top
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    color: PhyTheme.teal1
+                    opacity: parent.PathView.pageOpacity
+                }
 
                 function showPage() {
                     if (page) {
@@ -176,33 +204,22 @@ ApplicationWindow {
             filterOnGroup: "configured"
             Component.onCompleted: {
                 for (var i = 0; i < pageModel.count; i++) {
-                    var entry = pageModel.get(i);
-                    if (enabledPages.indexOf(entry.name) >= 0) {
-                        // Workaround as we can not use variables for ListElement property values.
-                        if(entry.name === "Multimedia") {
-                            entry.page = "qrc:///pages/" + multimediaPage
-                        }
-                        items.insert(entry, "configured");
-                    }
+                    items.insert(pageModel.get(i), "configured")
                 }
             }
         }
 
         PathView {
             id: pathView
-            anchors.fill: parent
+            anchors.top: brandBar.bottom
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
             model: displayDelegateModel
-            pathItemCount: 6 // must be even for proper item placement
+            pathItemCount: 4
             snapMode: PathView.SnapToItem
             preferredHighlightBegin: 0.5
             preferredHighlightEnd: 0.5
-
-            Image {
-                anchors.fill: parent
-                source: "qrc:///images/background.jpg"
-                fillMode: Image.PreserveAspectCrop
-                asynchronous: true
-            }
 
             MouseArea {
                 id: mouseAreaShowPage
@@ -229,30 +246,40 @@ ApplicationWindow {
 
             path: Path {
                 startX: 0
-                startY: 0.5 * height
+                startY: 0.5 * pathView.height
 
                 PathAttribute { name: "pageOpacity"; value: 0 }
                 PathAttribute { name: "z"; value: 0 }
 
-                PathLine { x: 0.1 * width; y: 0.5 * height }
+                PathLine { x: 0.1 * pathView.width; y: 0.5 * pathView.height }
                 PathPercent { value: 0.29 }
-                PathAttribute { name: "pageOpacity"; value: 0.8 }
+                PathAttribute { name: "pageOpacity"; value: 0.75 }
                 PathAttribute { name: "z"; value: 10 }
 
-                PathLine { x: 0.5 * width; y: 0.5 * height }
+                PathLine { x: 0.5 * pathView.width; y: 0.5 * pathView.height }
                 PathPercent { value: 0.5 }
                 PathAttribute { name: "pageOpacity"; value: 1 }
                 PathAttribute { name: "z"; value: 20 }
 
-                PathLine { x: 0.9 * width; y: 0.5 * height }
+                PathLine { x: 0.9 * pathView.width; y: 0.5 * pathView.height }
                 PathPercent { value: 0.71 }
-                PathAttribute { name: "pageOpacity"; value: 0.8 }
+                PathAttribute { name: "pageOpacity"; value: 0.75 }
                 PathAttribute { name: "z"; value: 10 }
 
-                PathLine { x: width; y: 0.5 * height }
+                PathLine { x: pathView.width; y: 0.5 * pathView.height }
                 PathAttribute { name: "pageOpacity"; value: 0 }
                 PathAttribute { name: "z"; value: 0 }
             }
+        }
+
+        // ── Bottom hint ────────────────────────────────────────────────────
+        Label {
+            anchors.bottom: parent.bottom
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottomMargin: 6
+            text: "Tik op een kaart om te openen  ·  www.hbwt.nl"
+            color: PhyTheme.teal3
+            font.pointSize: PhyTheme.font.pointSize * 0.4
         }
     }
 
@@ -261,3 +288,4 @@ ApplicationWindow {
         visible: false
     }
 }
+

@@ -1,6 +1,6 @@
 /*
  * SPDX-License-Identifier: MIT
- * Copyright (c) 2021 PHYTEC Messtechnik GmbH
+ * Restyled for HB Watertechnologie (HBWT) — www.EmbedTech.nl
  */
 
 pragma Singleton
@@ -8,25 +8,36 @@ pragma Singleton
 import QtQuick 2.0
 
 QtObject {
+    // Base
     readonly property color white: "#ffffff"
-    readonly property color gray1: "#f5f5f5"
-    readonly property color gray2: "#d0d2d3"
-    readonly property color gray3: "#95989a"
-    readonly property color gray4: "#707070"
+    readonly property color gray1: "#eef4f0"
+    readonly property color gray2: "#b2d8c2"
+    readonly property color gray3: "#7aad92"
+    readonly property color gray4: "#4d7a62"
     readonly property color black: "#000000"
-    readonly property color teal1: "#03c9d6"
-    readonly property color teal2: "#02a6b1"
-    readonly property color teal3: "#16969e"
-    readonly property color red: "#dc3545"
-    readonly property color orange: "#fd7e14"
-    readonly property color yellow: "#ffc107"
-    readonly property color green: "#28a745"
-    readonly property color teal: "#20c997"
-    readonly property color cyan: "#17a2b8"
-    readonly property color blue: "#007bff"
-    readonly property color indigo: "#6610f2"
-    readonly property color purple: "#6f42c1"
-    readonly property color pink: "#e83e8c"
+
+    // HBWT primary palette — fresh green / water
+    readonly property color teal1: "#52b788"   // main accent (fresh green)
+    readonly property color teal2: "#40916c"   // mid green
+    readonly property color teal3: "#2d6a4f"   // deep green
+    readonly property color teal:  "#52b788"
+    readonly property color water: "#48cae4"   // water blue
+    readonly property color waterDark: "#0096c7"
+
+    // Backgrounds
+    readonly property color bgDark:   "#0d1f17"  // main dark canvas
+    readonly property color cardDark: "#1a3327"  // card surface
+
+    // Status / chart colours
+    readonly property color red:    "#e63946"
+    readonly property color orange: "#f4a261"
+    readonly property color yellow: "#f7d06e"
+    readonly property color green:  "#52b788"
+    readonly property color cyan:   "#48cae4"
+    readonly property color blue:   "#0096c7"
+    readonly property color indigo: "#5e60ce"
+    readonly property color purple: "#7400b8"
+    readonly property color pink:   "#e83e8c"
 
     readonly property int marginSmall: 6
     readonly property int marginRegular: 12

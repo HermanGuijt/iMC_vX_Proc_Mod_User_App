@@ -22,15 +22,22 @@ T.Button {
     background: Rectangle {
         implicitWidth: 100
         implicitHeight: 40
+        radius: 6
         visible: !control.flat || control.checked || control.down
-        color: control.checked || control.down ? PhyTheme.black : PhyTheme.gray4
+        color: {
+            if (!control.enabled)             return "#1a3327"
+            if (control.flat)                 return "transparent"
+            if (control.down || control.checked) return PhyTheme.teal1
+            return PhyTheme.teal2
+        }
+        border.color: control.flat ? PhyTheme.teal1 : "transparent"
+        border.width: control.flat ? 1 : 0
     }
 
     contentItem: Text {
         text: control.text
-        opacity: enabled ? 1 : 0.3
-        color: !control.flat ? PhyTheme.white : PhyTheme.black &&
-               control.checked || control.down ? PhyTheme.white : PhyTheme.black
+        opacity: enabled ? 1 : 0.4
+        color: (control.flat && control.enabled) ? PhyTheme.teal1 : PhyTheme.white
         font: PhyTheme.font
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
