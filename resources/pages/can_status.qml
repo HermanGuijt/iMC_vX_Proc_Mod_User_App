@@ -30,7 +30,7 @@ Page {
         Component.onCompleted: {
             // Initialize CAN interface on page load (10 kbit/s per spec)
             if (!canController.initialized) {
-                canController.initCAN("can0", 10000)
+                canController.initCAN("can1", 10000)
             }
         }
         
@@ -147,7 +147,7 @@ Page {
                         }
                         
                         Label {
-                            text: "can0"
+                            text: "can1"
                             color: PhyTheme.white
                             font.pointSize: PhyTheme.font.pointSize * 0.5
                             font.bold: true

@@ -30,7 +30,7 @@ Page {
         Component.onCompleted: {
             // Initialize CAN interface on page load
             if (!canController.initialized) {
-                canController.initCAN("can0", 10000)
+                canController.initCAN("can1", 10000)
             }
         }
     }
