@@ -36,14 +36,14 @@ Page {
         
         onCommandSuccess: function(message) {
             feedback.text = "✓ " + message
-            feedback.color = PhyTheme.teal1
+            feedback.messageType = "success"
             feedback.visible = true
             feedbackTimer.restart()
         }
         
         onCommandFailed: function(error) {
             feedback.text = "✗ " + error
-            feedback.color = "#ff6b6b"
+            feedback.messageType = "error"
             feedback.visible = true
             feedbackTimer.restart()
         }
@@ -72,19 +72,19 @@ Page {
                 Layout.fillWidth: true
                 implicitHeight: feedbackText.implicitHeight + 20
                 radius: 6
-                color: feedback.color === PhyTheme.teal1 ? "#1f3d2f" : "#3d1f1f"
-                border.color: feedback.color
+                color: feedback.messageType === "success" ? "#1f3d2f" : "#3d1f1f"
+                border.color: feedback.messageType === "success" ? PhyTheme.teal1 : "#ff6b6b"
                 border.width: 1
                 visible: false
                 
                 property alias text: feedbackText.text
-                property color color: PhyTheme.teal1
+                property string messageType: "success"  // "success" or "error"
 
                 Label {
                     id: feedbackText
                     anchors.centerIn: parent
                     text: ""
-                    color: parent.color
+                    color: feedback.messageType === "success" ? PhyTheme.teal1 : "#ff6b6b"
                     font.pointSize: PhyTheme.font.pointSize * 0.55
                 }
             }
