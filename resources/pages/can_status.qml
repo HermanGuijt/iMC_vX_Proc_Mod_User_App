@@ -339,32 +339,69 @@ Page {
                         }
                     }
 
-                    // Request status button
-                    Button {
+                    // Action buttons
+                    RowLayout {
                         Layout.alignment: Qt.AlignLeft
                         Layout.topMargin: 10
-                        text: "Request Status"
-                        enabled: canController.initialized
-                        font.pointSize: PhyTheme.font.pointSize * 0.52
+                        spacing: 10
                         
-                        background: Rectangle {
-                            implicitWidth: 150
-                            implicitHeight: 40
-                            radius: 6
-                            color: parent.enabled ? PhyTheme.teal2 : PhyTheme.gray4
-                            border.color: parent.enabled ? PhyTheme.teal1 : PhyTheme.gray3
-                            border.width: 1
+                        Button {
+                            text: "Request Status"
+                            enabled: canController.initialized
+                            font.pointSize: PhyTheme.font.pointSize * 0.52
+                            
+                            background: Rectangle {
+                                implicitWidth: 150
+                                implicitHeight: 40
+                                radius: 6
+                                color: parent.pressed 
+                                    ? (parent.enabled ? Qt.darker(PhyTheme.teal2, 1.3) : PhyTheme.gray4)
+                                    : (parent.enabled ? PhyTheme.teal2 : PhyTheme.gray4)
+                                border.color: parent.enabled ? PhyTheme.teal1 : PhyTheme.gray3
+                                border.width: 1
+                                
+                                Behavior on color { ColorAnimation { duration: 100 } }
+                            }
+                            
+                            contentItem: Text {
+                                text: parent.text
+                                color: parent.enabled ? PhyTheme.white : PhyTheme.gray2
+                                font: parent.font
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                            
+                            onClicked: canController.requestStatus()
                         }
                         
-                        contentItem: Text {
-                            text: parent.text
-                            color: parent.enabled ? PhyTheme.white : PhyTheme.gray2
-                            font: parent.font
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
+                        Button {
+                            text: "Reset CAN Bus"
+                            enabled: canController.initialized
+                            font.pointSize: PhyTheme.font.pointSize * 0.52
+                            
+                            background: Rectangle {
+                                implicitWidth: 150
+                                implicitHeight: 40
+                                radius: 6
+                                color: parent.pressed 
+                                    ? (parent.enabled ? Qt.darker("#e67e22", 1.3) : PhyTheme.gray4)
+                                    : (parent.enabled ? "#e67e22" : PhyTheme.gray4)
+                                border.color: parent.enabled ? "#d35400" : PhyTheme.gray3
+                                border.width: 1
+                                
+                                Behavior on color { ColorAnimation { duration: 100 } }
+                            }
+                            
+                            contentItem: Text {
+                                text: parent.text
+                                color: parent.enabled ? PhyTheme.white : PhyTheme.gray2
+                                font: parent.font
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                            
+                            onClicked: canController.resetCAN()
                         }
-                        
-                        onClicked: canController.requestStatus()
                     }
                 }
             }

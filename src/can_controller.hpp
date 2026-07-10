@@ -140,6 +140,7 @@ public:
     
     Q_INVOKABLE bool initCAN(const QString &interface = "can0", int bitrate = 10000);
     Q_INVOKABLE void shutdownCAN();
+    Q_INVOKABLE bool resetCAN();
     
     // Actuator Commands
     Q_INVOKABLE bool setValve(int valveIndex, bool state);

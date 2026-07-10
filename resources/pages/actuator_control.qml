@@ -123,9 +123,13 @@ Page {
                                 implicitWidth: 100
                                 implicitHeight: 32
                                 radius: 6
-                                color: parent.enabled ? "#d63031" : PhyTheme.gray4
+                                color: parent.pressed
+                                    ? (parent.enabled ? Qt.darker("#d63031", 1.3) : PhyTheme.gray4)
+                                    : (parent.enabled ? "#d63031" : PhyTheme.gray4)
                                 border.color: parent.enabled ? "#c0392b" : PhyTheme.gray3
                                 border.width: 1
+                                
+                                Behavior on color { ColorAnimation { duration: 100 } }
                             }
                             
                             contentItem: Text {
@@ -207,12 +211,16 @@ Page {
                                         font.pointSize: PhyTheme.font.pointSize * 0.45
                                         
                                         background: Rectangle {
-                                            implicitWidth: 70
+                                            implicitWidth: 100
                                             implicitHeight: 32
                                             radius: 6
-                                            color: parent.enabled ? PhyTheme.teal2 : PhyTheme.gray4
+                                            color: parent.pressed
+                                                ? (parent.enabled ? Qt.darker(PhyTheme.teal2, 1.3) : PhyTheme.gray4)
+                                                : (parent.enabled ? PhyTheme.teal2 : PhyTheme.gray4)
                                             border.color: parent.enabled ? PhyTheme.teal1 : PhyTheme.gray3
                                             border.width: 1
+                                            
+                                            Behavior on color { ColorAnimation { duration: 100 } }
                                         }
                                         
                                         contentItem: Text {
@@ -232,12 +240,16 @@ Page {
                                         font.pointSize: PhyTheme.font.pointSize * 0.45
                                         
                                         background: Rectangle {
-                                            implicitWidth: 70
+                                            implicitWidth: 100
                                             implicitHeight: 32
                                             radius: 6
-                                            color: parent.enabled ? PhyTheme.gray5 : PhyTheme.gray4
+                                            color: parent.pressed
+                                                ? (parent.enabled ? Qt.darker(PhyTheme.gray5, 1.3) : PhyTheme.gray4)
+                                                : (parent.enabled ? PhyTheme.gray5 : PhyTheme.gray4)
                                             border.color: parent.enabled ? PhyTheme.gray3 : PhyTheme.gray3
                                             border.width: 1
+                                            
+                                            Behavior on color { ColorAnimation { duration: 100 } }
                                         }
                                         
                                         contentItem: Text {
@@ -317,9 +329,13 @@ Page {
                                 implicitWidth: 100
                                 implicitHeight: 32
                                 radius: 6
-                                color: parent.enabled ? "#d63031" : PhyTheme.gray4
+                                color: parent.pressed
+                                    ? (parent.enabled ? Qt.darker("#d63031", 1.3) : PhyTheme.gray4)
+                                    : (parent.enabled ? "#d63031" : PhyTheme.gray4)
                                 border.color: parent.enabled ? "#c0392b" : PhyTheme.gray3
                                 border.width: 1
+                                
+                                Behavior on color { ColorAnimation { duration: 100 } }
                             }
                             
                             contentItem: Text {
@@ -401,12 +417,16 @@ Page {
                                         font.pointSize: PhyTheme.font.pointSize * 0.45
                                         
                                         background: Rectangle {
-                                            implicitWidth: 70
+                                            implicitWidth: 100
                                             implicitHeight: 32
                                             radius: 6
-                                            color: parent.enabled ? PhyTheme.teal2 : PhyTheme.gray4
+                                            color: parent.pressed
+                                                ? (parent.enabled ? Qt.darker(PhyTheme.teal2, 1.3) : PhyTheme.gray4)
+                                                : (parent.enabled ? PhyTheme.teal2 : PhyTheme.gray4)
                                             border.color: parent.enabled ? PhyTheme.teal1 : PhyTheme.gray3
                                             border.width: 1
+                                            
+                                            Behavior on color { ColorAnimation { duration: 100 } }
                                         }
                                         
                                         contentItem: Text {
@@ -426,16 +446,28 @@ Page {
                                         font.pointSize: PhyTheme.font.pointSize * 0.45
                                         
                                         background: Rectangle {
-                                            implicitWidth: 70
+                                            implicitWidth: 100
                                             implicitHeight: 32
                                             radius: 6
-                                            color: parent.enabled ? PhyTheme.gray5 : PhyTheme.gray4
+                                            color: parent.pressed
+                                                ? (parent.enabled ? Qt.darker(PhyTheme.gray5, 1.3) : PhyTheme.gray4)
+                                                : (parent.enabled ? PhyTheme.gray5 : PhyTheme.gray4)
                                             border.color: parent.enabled ? PhyTheme.gray3 : PhyTheme.gray3
                                             border.width: 1
+                                            
+                                            Behavior on color { ColorAnimation { duration: 100 } }
                                         }
                                         
                                         contentItem: Text {
                                             text: parent.text
+                                            color: parent.enabled ? PhyTheme.white : PhyTheme.gray2
+                                            font: parent.font
+                                            horizontalAlignment: Text.AlignHCenter
+                                            verticalAlignment: Text.AlignVCenter
+                                        }
+                                        
+                                        onClicked: canController.setBinaryOutput(index, false)
+                                    }
                                             color: parent.enabled ? PhyTheme.white : PhyTheme.gray2
                                             font: parent.font
                                             horizontalAlignment: Text.AlignHCenter

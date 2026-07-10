@@ -9,6 +9,7 @@
 #include "can_controller.hpp"
 #include <QDebug>
 #include <QProcess>
+#include <QThread>
 #include <cstring>
 #include <cmath>
 
@@ -199,6 +200,32 @@ void CANController::shutdownCAN()
     
     emit initializedChanged();
     emit statusChanged();
+}
+
+bool CANController::resetCAN()
+{
+    qInfo() << "[CAN] Resetting CAN interface";
+    
+    QString currentInterface = m_currentInterface;
+    
+    // Shutdown current connection
+    shutdownCAN();
+    
+    // Wait a moment for cleanup
+    QThread::msleep(100);
+    
+    // Re-initialize with same interface and bitrate
+    bool success = initCAN(currentInterface, 10000);
+    
+    if (success) {
+        emit commandSuccess("CAN interface reset successful");
+        qInfo() << "[CAN] Reset successful";
+    } else {
+        emit errorOccurred("CAN interface reset failed");
+        qWarning() << "[CAN] Reset failed";
+    }
+    
+    return success;
 }
 
 // ════════════════════════════════════════════════════════════════════════════
