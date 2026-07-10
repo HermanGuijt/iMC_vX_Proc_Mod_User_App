@@ -468,14 +468,6 @@ Page {
                                         
                                         onClicked: canController.setBinaryOutput(index, false)
                                     }
-                                            color: parent.enabled ? PhyTheme.white : PhyTheme.gray2
-                                            font: parent.font
-                                            horizontalAlignment: Text.AlignHCenter
-                                            verticalAlignment: Text.AlignVCenter
-                                        }
-                                        
-                                        onClicked: canController.setBinaryOutput(index, false)
-                                    }
                                 }
 
                                 // Status indicator
