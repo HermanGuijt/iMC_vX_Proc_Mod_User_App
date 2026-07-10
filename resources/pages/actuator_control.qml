@@ -141,7 +141,7 @@ Page {
                             contentItem: Text {
                                 text: parent.text
                                 color: parent.enabled ? PhyTheme.white : PhyTheme.gray2
-                                font: parent.font
+                                font.pointSize: PhyTheme.font.pointSize * 0.5
                                 font.bold: true
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter
@@ -242,7 +242,7 @@ Page {
                                         contentItem: Text {
                                             text: parent.text
                                             color: parent.enabled ? PhyTheme.white : PhyTheme.gray2
-                                            font: parent.font
+                                            font.pointSize: PhyTheme.font.pointSize * 0.5
                                             font.bold: true
                                             horizontalAlignment: Text.AlignHCenter
                                             verticalAlignment: Text.AlignVCenter
@@ -281,7 +281,7 @@ Page {
                                         contentItem: Text {
                                             text: parent.text
                                             color: parent.enabled ? PhyTheme.white : PhyTheme.gray2
-                                            font: parent.font
+                                            font.pointSize: PhyTheme.font.pointSize * 0.5
                                             font.bold: true
                                             horizontalAlignment: Text.AlignHCenter
                                             verticalAlignment: Text.AlignVCenter
@@ -377,7 +377,7 @@ Page {
                             contentItem: Text {
                                 text: parent.text
                                 color: parent.enabled ? PhyTheme.white : PhyTheme.gray2
-                                font: parent.font
+                                font.pointSize: PhyTheme.font.pointSize * 0.5
                                 font.bold: true
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter
@@ -478,7 +478,7 @@ Page {
                                         contentItem: Text {
                                             text: parent.text
                                             color: parent.enabled ? PhyTheme.white : PhyTheme.gray2
-                                            font: parent.font
+                                            font.pointSize: PhyTheme.font.pointSize * 0.5
                                             font.bold: true
                                             horizontalAlignment: Text.AlignHCenter
                                             verticalAlignment: Text.AlignVCenter
@@ -517,7 +517,7 @@ Page {
                                         contentItem: Text {
                                             text: parent.text
                                             color: parent.enabled ? PhyTheme.white : PhyTheme.gray2
-                                            font: parent.font
+                                            font.pointSize: PhyTheme.font.pointSize * 0.5
                                             font.bold: true
                                             horizontalAlignment: Text.AlignHCenter
                                             verticalAlignment: Text.AlignVCenter
