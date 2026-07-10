@@ -115,31 +115,41 @@ Page {
                         Item { Layout.fillWidth: true }
                         
                         Button {
+                            id: allCloseBtn
                             text: "All CLOSE"
                             enabled: canController.initialized && canController.ioModuleOnline
-                            font.pointSize: PhyTheme.font.pointSize * 0.45
+                            font.pointSize: PhyTheme.font.pointSize * 0.5
+                            
+                            property bool touching: false
+                            
+                            scale: touching ? 0.95 : 1.0
+                            Behavior on scale { NumberAnimation { duration: 100 } }
                             
                             background: Rectangle {
-                                implicitWidth: 100
-                                implicitHeight: 32
+                                implicitWidth: 120
+                                implicitHeight: 38
                                 radius: 6
-                                color: parent.pressed
-                                    ? (parent.enabled ? Qt.darker("#d63031", 1.3) : PhyTheme.gray4)
-                                    : (parent.enabled ? "#d63031" : PhyTheme.gray4)
-                                border.color: parent.enabled ? "#c0392b" : PhyTheme.gray3
-                                border.width: 1
+                                color: allCloseBtn.touching
+                                    ? (allCloseBtn.enabled ? Qt.darker("#d63031", 1.4) : PhyTheme.gray4)
+                                    : (allCloseBtn.enabled ? "#d63031" : PhyTheme.gray4)
+                                border.color: allCloseBtn.enabled ? "#c0392b" : PhyTheme.gray3
+                                border.width: 2
                                 
-                                Behavior on color { ColorAnimation { duration: 100 } }
+                                Behavior on color { ColorAnimation { duration: 80 } }
                             }
                             
                             contentItem: Text {
                                 text: parent.text
                                 color: parent.enabled ? PhyTheme.white : PhyTheme.gray2
                                 font: parent.font
+                                font.bold: true
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter
                             }
                             
+                            onPressed: touching = true
+                            onReleased: touching = false
+                            onCanceled: touching = false
                             onClicked: canController.setAllValves(0xFF, 0x00)
                         }
                     }
@@ -206,60 +216,80 @@ Page {
                                     spacing: 8
                                     
                                     Button {
+                                        id: openBtn
                                         text: "OPEN"
                                         enabled: canController.initialized && canController.ioModuleOnline
-                                        font.pointSize: PhyTheme.font.pointSize * 0.45
+                                        font.pointSize: PhyTheme.font.pointSize * 0.5
+                                        
+                                        property bool touching: false
+                                        
+                                        scale: touching ? 0.95 : 1.0
+                                        Behavior on scale { NumberAnimation { duration: 100 } }
                                         
                                         background: Rectangle {
-                                            implicitWidth: 100
-                                            implicitHeight: 32
+                                            implicitWidth: 150
+                                            implicitHeight: 38
                                             radius: 6
-                                            color: parent.pressed
-                                                ? (parent.enabled ? Qt.darker(PhyTheme.teal2, 1.3) : PhyTheme.gray4)
-                                                : (parent.enabled ? PhyTheme.teal2 : PhyTheme.gray4)
-                                            border.color: parent.enabled ? PhyTheme.teal1 : PhyTheme.gray3
-                                            border.width: 1
+                                            color: openBtn.touching
+                                                ? (openBtn.enabled ? Qt.darker(PhyTheme.teal2, 1.4) : PhyTheme.gray4)
+                                                : (openBtn.enabled ? PhyTheme.teal2 : PhyTheme.gray4)
+                                            border.color: openBtn.enabled ? PhyTheme.teal1 : PhyTheme.gray3
+                                            border.width: 2
                                             
-                                            Behavior on color { ColorAnimation { duration: 100 } }
+                                            Behavior on color { ColorAnimation { duration: 80 } }
                                         }
                                         
                                         contentItem: Text {
                                             text: parent.text
                                             color: parent.enabled ? PhyTheme.white : PhyTheme.gray2
                                             font: parent.font
+                                            font.bold: true
                                             horizontalAlignment: Text.AlignHCenter
                                             verticalAlignment: Text.AlignVCenter
                                         }
                                         
+                                        onPressed: touching = true
+                                        onReleased: touching = false
+                                        onCanceled: touching = false
                                         onClicked: canController.setValve(index, true)
                                     }
                                     
                                     Button {
+                                        id: closeBtn
                                         text: "CLOSE"
                                         enabled: canController.initialized && canController.ioModuleOnline
-                                        font.pointSize: PhyTheme.font.pointSize * 0.45
+                                        font.pointSize: PhyTheme.font.pointSize * 0.5
+                                        
+                                        property bool touching: false
+                                        
+                                        scale: touching ? 0.95 : 1.0
+                                        Behavior on scale { NumberAnimation { duration: 100 } }
                                         
                                         background: Rectangle {
-                                            implicitWidth: 100
-                                            implicitHeight: 32
+                                            implicitWidth: 150
+                                            implicitHeight: 38
                                             radius: 6
-                                            color: parent.pressed
-                                                ? (parent.enabled ? Qt.darker(PhyTheme.gray5, 1.3) : PhyTheme.gray4)
-                                                : (parent.enabled ? PhyTheme.gray5 : PhyTheme.gray4)
-                                            border.color: parent.enabled ? PhyTheme.gray3 : PhyTheme.gray3
-                                            border.width: 1
+                                            color: closeBtn.touching
+                                                ? (closeBtn.enabled ? Qt.darker(PhyTheme.gray5, 1.4) : PhyTheme.gray4)
+                                                : (closeBtn.enabled ? PhyTheme.gray5 : PhyTheme.gray4)
+                                            border.color: closeBtn.enabled ? PhyTheme.gray3 : PhyTheme.gray3
+                                            border.width: 2
                                             
-                                            Behavior on color { ColorAnimation { duration: 100 } }
+                                            Behavior on color { ColorAnimation { duration: 80 } }
                                         }
                                         
                                         contentItem: Text {
                                             text: parent.text
                                             color: parent.enabled ? PhyTheme.white : PhyTheme.gray2
                                             font: parent.font
+                                            font.bold: true
                                             horizontalAlignment: Text.AlignHCenter
                                             verticalAlignment: Text.AlignVCenter
                                         }
                                         
+                                        onPressed: touching = true
+                                        onReleased: touching = false
+                                        onCanceled: touching = false
                                         onClicked: canController.setValve(index, false)
                                     }
                                 }
@@ -321,31 +351,41 @@ Page {
                         Item { Layout.fillWidth: true }
                         
                         Button {
+                            id: allOffBtn
                             text: "All OFF"
                             enabled: canController.initialized && canController.ioModuleOnline
-                            font.pointSize: PhyTheme.font.pointSize * 0.45
+                            font.pointSize: PhyTheme.font.pointSize * 0.5
+                            
+                            property bool touching: false
+                            
+                            scale: touching ? 0.95 : 1.0
+                            Behavior on scale { NumberAnimation { duration: 100 } }
                             
                             background: Rectangle {
-                                implicitWidth: 100
-                                implicitHeight: 32
+                                implicitWidth: 120
+                                implicitHeight: 38
                                 radius: 6
-                                color: parent.pressed
-                                    ? (parent.enabled ? Qt.darker("#d63031", 1.3) : PhyTheme.gray4)
-                                    : (parent.enabled ? "#d63031" : PhyTheme.gray4)
-                                border.color: parent.enabled ? "#c0392b" : PhyTheme.gray3
-                                border.width: 1
+                                color: allOffBtn.touching
+                                    ? (allOffBtn.enabled ? Qt.darker("#d63031", 1.4) : PhyTheme.gray4)
+                                    : (allOffBtn.enabled ? "#d63031" : PhyTheme.gray4)
+                                border.color: allOffBtn.enabled ? "#c0392b" : PhyTheme.gray3
+                                border.width: 2
                                 
-                                Behavior on color { ColorAnimation { duration: 100 } }
+                                Behavior on color { ColorAnimation { duration: 80 } }
                             }
                             
                             contentItem: Text {
                                 text: parent.text
                                 color: parent.enabled ? PhyTheme.white : PhyTheme.gray2
                                 font: parent.font
+                                font.bold: true
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter
                             }
                             
+                            onPressed: touching = true
+                            onReleased: touching = false
+                            onCanceled: touching = false
                             onClicked: canController.setAllOutputs(0x07, 0x00)
                         }
                     }
@@ -412,60 +452,80 @@ Page {
                                     spacing: 8
                                     
                                     Button {
+                                        id: onBtn
                                         text: "ON"
                                         enabled: canController.initialized && canController.ioModuleOnline
-                                        font.pointSize: PhyTheme.font.pointSize * 0.45
+                                        font.pointSize: PhyTheme.font.pointSize * 0.5
+                                        
+                                        property bool touching: false
+                                        
+                                        scale: touching ? 0.95 : 1.0
+                                        Behavior on scale { NumberAnimation { duration: 100 } }
                                         
                                         background: Rectangle {
-                                            implicitWidth: 100
-                                            implicitHeight: 32
+                                            implicitWidth: 150
+                                            implicitHeight: 38
                                             radius: 6
-                                            color: parent.pressed
-                                                ? (parent.enabled ? Qt.darker(PhyTheme.teal2, 1.3) : PhyTheme.gray4)
-                                                : (parent.enabled ? PhyTheme.teal2 : PhyTheme.gray4)
-                                            border.color: parent.enabled ? PhyTheme.teal1 : PhyTheme.gray3
-                                            border.width: 1
+                                            color: onBtn.touching
+                                                ? (onBtn.enabled ? Qt.darker(PhyTheme.teal2, 1.4) : PhyTheme.gray4)
+                                                : (onBtn.enabled ? PhyTheme.teal2 : PhyTheme.gray4)
+                                            border.color: onBtn.enabled ? PhyTheme.teal1 : PhyTheme.gray3
+                                            border.width: 2
                                             
-                                            Behavior on color { ColorAnimation { duration: 100 } }
+                                            Behavior on color { ColorAnimation { duration: 80 } }
                                         }
                                         
                                         contentItem: Text {
                                             text: parent.text
                                             color: parent.enabled ? PhyTheme.white : PhyTheme.gray2
                                             font: parent.font
+                                            font.bold: true
                                             horizontalAlignment: Text.AlignHCenter
                                             verticalAlignment: Text.AlignVCenter
                                         }
                                         
+                                        onPressed: touching = true
+                                        onReleased: touching = false
+                                        onCanceled: touching = false
                                         onClicked: canController.setBinaryOutput(index, true)
                                     }
                                     
                                     Button {
+                                        id: offBtn
                                         text: "OFF"
                                         enabled: canController.initialized && canController.ioModuleOnline
-                                        font.pointSize: PhyTheme.font.pointSize * 0.45
+                                        font.pointSize: PhyTheme.font.pointSize * 0.5
+                                        
+                                        property bool touching: false
+                                        
+                                        scale: touching ? 0.95 : 1.0
+                                        Behavior on scale { NumberAnimation { duration: 100 } }
                                         
                                         background: Rectangle {
-                                            implicitWidth: 100
-                                            implicitHeight: 32
+                                            implicitWidth: 150
+                                            implicitHeight: 38
                                             radius: 6
-                                            color: parent.pressed
-                                                ? (parent.enabled ? Qt.darker(PhyTheme.gray5, 1.3) : PhyTheme.gray4)
-                                                : (parent.enabled ? PhyTheme.gray5 : PhyTheme.gray4)
-                                            border.color: parent.enabled ? PhyTheme.gray3 : PhyTheme.gray3
-                                            border.width: 1
+                                            color: offBtn.touching
+                                                ? (offBtn.enabled ? Qt.darker(PhyTheme.gray5, 1.4) : PhyTheme.gray4)
+                                                : (offBtn.enabled ? PhyTheme.gray5 : PhyTheme.gray4)
+                                            border.color: offBtn.enabled ? PhyTheme.gray3 : PhyTheme.gray3
+                                            border.width: 2
                                             
-                                            Behavior on color { ColorAnimation { duration: 100 } }
+                                            Behavior on color { ColorAnimation { duration: 80 } }
                                         }
                                         
                                         contentItem: Text {
                                             text: parent.text
                                             color: parent.enabled ? PhyTheme.white : PhyTheme.gray2
                                             font: parent.font
+                                            font.bold: true
                                             horizontalAlignment: Text.AlignHCenter
                                             verticalAlignment: Text.AlignVCenter
                                         }
                                         
+                                        onPressed: touching = true
+                                        onReleased: touching = false
+                                        onCanceled: touching = false
                                         onClicked: canController.setBinaryOutput(index, false)
                                     }
                                 }

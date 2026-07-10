@@ -346,60 +346,80 @@ Page {
                         spacing: 10
                         
                         Button {
+                            id: requestStatusBtn
                             text: "Request Status"
                             enabled: canController.initialized
-                            font.pointSize: PhyTheme.font.pointSize * 0.52
+                            font.pointSize: PhyTheme.font.pointSize * 0.55
+                            
+                            property bool touching: false
+                            
+                            scale: touching ? 0.95 : 1.0
+                            Behavior on scale { NumberAnimation { duration: 100 } }
                             
                             background: Rectangle {
-                                implicitWidth: 150
-                                implicitHeight: 40
+                                implicitWidth: 160
+                                implicitHeight: 45
                                 radius: 6
-                                color: parent.pressed 
-                                    ? (parent.enabled ? Qt.darker(PhyTheme.teal2, 1.3) : PhyTheme.gray4)
-                                    : (parent.enabled ? PhyTheme.teal2 : PhyTheme.gray4)
-                                border.color: parent.enabled ? PhyTheme.teal1 : PhyTheme.gray3
-                                border.width: 1
+                                color: requestStatusBtn.touching
+                                    ? (requestStatusBtn.enabled ? Qt.darker(PhyTheme.teal2, 1.4) : PhyTheme.gray4)
+                                    : (requestStatusBtn.enabled ? PhyTheme.teal2 : PhyTheme.gray4)
+                                border.color: requestStatusBtn.enabled ? PhyTheme.teal1 : PhyTheme.gray3
+                                border.width: 2
                                 
-                                Behavior on color { ColorAnimation { duration: 100 } }
+                                Behavior on color { ColorAnimation { duration: 80 } }
                             }
                             
                             contentItem: Text {
                                 text: parent.text
                                 color: parent.enabled ? PhyTheme.white : PhyTheme.gray2
                                 font: parent.font
+                                font.bold: true
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter
                             }
                             
+                            onPressed: touching = true
+                            onReleased: touching = false
+                            onCanceled: touching = false
                             onClicked: canController.requestStatus()
                         }
                         
                         Button {
+                            id: resetCanBtn
                             text: "Reset CAN Bus"
                             enabled: canController.initialized
-                            font.pointSize: PhyTheme.font.pointSize * 0.52
+                            font.pointSize: PhyTheme.font.pointSize * 0.55
+                            
+                            property bool touching: false
+                            
+                            scale: touching ? 0.95 : 1.0
+                            Behavior on scale { NumberAnimation { duration: 100 } }
                             
                             background: Rectangle {
-                                implicitWidth: 150
-                                implicitHeight: 40
+                                implicitWidth: 160
+                                implicitHeight: 45
                                 radius: 6
-                                color: parent.pressed 
-                                    ? (parent.enabled ? Qt.darker("#e67e22", 1.3) : PhyTheme.gray4)
-                                    : (parent.enabled ? "#e67e22" : PhyTheme.gray4)
-                                border.color: parent.enabled ? "#d35400" : PhyTheme.gray3
-                                border.width: 1
+                                color: resetCanBtn.touching
+                                    ? (resetCanBtn.enabled ? Qt.darker("#e67e22", 1.4) : PhyTheme.gray4)
+                                    : (resetCanBtn.enabled ? "#e67e22" : PhyTheme.gray4)
+                                border.color: resetCanBtn.enabled ? "#d35400" : PhyTheme.gray3
+                                border.width: 2
                                 
-                                Behavior on color { ColorAnimation { duration: 100 } }
+                                Behavior on color { ColorAnimation { duration: 80 } }
                             }
                             
                             contentItem: Text {
                                 text: parent.text
                                 color: parent.enabled ? PhyTheme.white : PhyTheme.gray2
                                 font: parent.font
+                                font.bold: true
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter
                             }
                             
+                            onPressed: touching = true
+                            onReleased: touching = false
+                            onCanceled: touching = false
                             onClicked: canController.resetCAN()
                         }
                     }
