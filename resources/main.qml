@@ -39,9 +39,21 @@ ApplicationWindow {
         }
         ListElement {
             icon: "\ue1e8"
-            name: "CAN Bus"
-            description: "CAN bus status en node detectie"
+            name: "CAN Bus Status"
+            description: "CAN bus status en IO Module health"
             page: "qrc:///pages/can_status.qml"
+        }
+        ListElement {
+            icon: "\ue85d"
+            name: "Sensor Data"
+            description: "Vochtigheid, druk, temperatuur en inputs"
+            page: "qrc:///pages/sensor_data.qml"
+        }
+        ListElement {
+            icon: "\ue429"
+            name: "Actuator Control"
+            description: "Ventiel en output besturing"
+            page: "qrc:///pages/actuator_control.qml"
         }
         ListElement {
             icon: "\ue88e"
