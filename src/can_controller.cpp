@@ -7,6 +7,7 @@
  */
 
 #include "can_controller.hpp"
+#include "can_logger.hpp"
 #include <QDebug>
 #include <QProcess>
 #include <QThread>
@@ -31,6 +32,8 @@ CANController::CANController(QObject *parent)
     , m_socketNotifier(nullptr)
     , m_heartbeatTimer(nullptr)
     , m_healthCheckTimer(nullptr)
+    , m_commandResponseTimer(nullptr)
+    , m_logger(nullptr)
     , m_status("Not initialized")
     , m_initialized(false)
     , m_processorUptime(0)
@@ -44,6 +47,14 @@ CANController::CANController(QObject *parent)
     m_healthCheckTimer = new QTimer(this);
     m_healthCheckTimer->setInterval(HEALTH_CHECK_INTERVAL_MS);
     connect(m_healthCheckTimer, &QTimer::timeout, this, &CANController::onHealthCheckTimer);
+    
+    // Setup command response timeout timer (single-shot)
+    m_commandResponseTimer = new QTimer(this);
+    m_commandResponseTimer->setSingleShot(true);
+    connect(m_commandResponseTimer, &QTimer::timeout, this, &CANController::onCommandResponseTimeout);
+    
+    // Create CAN logger
+    m_logger = new CANLogger(this);
 }
 
 CANController::~CANController()
@@ -173,8 +184,20 @@ bool CANController::initCAN(const QString &interface, int bitrate)
     m_heartbeatTimer->start();
     m_healthCheckTimer->start();
     
+    // Start CAN logger
+    if (m_logger) {
+        if (m_logger->start()) {
+            qInfo() << "[CAN] Logger started:" << m_logger->logFilePath();
+        } else {
+            qWarning() << "[CAN] Failed to start logger";
+        }
+    }
+    
     // Send Node Announce
     sendNodeAnnounce();
+    
+    // Configure sensor data interval (default: 10 seconds)
+    sendConfigSetInterval(10);
     
     qInfo() << "[CAN] Initialization successful";
     return true;
@@ -191,6 +214,15 @@ void CANController::shutdownCAN()
     // Stop timers
     m_heartbeatTimer->stop();
     m_healthCheckTimer->stop();
+    m_commandResponseTimer->stop();
+    
+    // Stop CAN logger
+    if (m_logger) {
+        m_logger->stop();
+    }
+    
+    // Cancel any pending retries
+    cancelCommandRetry();
     
     // Close socket
     closeSocket();
@@ -415,6 +447,11 @@ bool CANController::sendCANFrame(quint32 canId, const QByteArray &data)
              << " DLC:" << frame.can_dlc
              << " Data:" << QByteArray(reinterpret_cast<const char*>(frame.data), frame.can_dlc).toHex(' ');
     
+    // Log to CAN logger
+    if (m_logger && m_logger->isActive()) {
+        m_logger->logTx(canId, data);
+    }
+    
     return true;
 }
 
@@ -472,6 +509,9 @@ bool CANController::sendValveCommand(quint8 mask, quint8 states)
         emit valveStatesChanged();
         qInfo() << "[CAN] Valve command sent: mask=0x" << QString::number(mask, 16)
                 << " states=0x" << QString::number(states, 16);
+        
+        // Start retry tracking (wait for response on 0x300)
+        startCommandRetry(CAN_ID_VALVE_CMD, data, "Valve command");
     }
     return result;
 }
@@ -497,6 +537,9 @@ bool CANController::sendOutputCommand(quint8 mask, quint8 states)
         emit outputStatesChanged();
         qInfo() << "[CAN] Binary output command sent: mask=0x" << QString::number(mask, 16)
                 << " states=0x" << QString::number(states, 16);
+        
+        // Start retry tracking (wait for response on 0x301)
+        startCommandRetry(CAN_ID_OUTPUT_CMD, data, "Binary output command");
     }
     return result;
 }
@@ -513,6 +556,9 @@ bool CANController::sendConfigSetInterval(quint8 interval)
     bool result = sendCANFrame(CAN_ID_CONFIG_SET_INTERVAL, data);
     if (result) {
         qInfo() << "[CAN] Config: Set sensor interval to" << interval << "seconds";
+        
+        // Start retry tracking (wait for ACK on 0x300)
+        startCommandRetry(CAN_ID_CONFIG_SET_INTERVAL, data, "Set sensor interval");
     }
     return result;
 }
@@ -556,6 +602,11 @@ void CANController::onCANReadable()
     qDebug() << "[CAN] RX: ID 0x" << QString::number(frame.can_id, 16).toUpper()
              << " DLC:" << frame.can_dlc
              << " Data:" << data.toHex(' ');
+    
+    // Log to CAN logger
+    if (m_logger && m_logger->isActive()) {
+        m_logger->logRx(frame.can_id, data);
+    }
     
     processCANFrame(frame.can_id, data);
 }
@@ -761,6 +812,9 @@ void CANController::processValveResponse(const QByteArray &data)
         return;
     }
     
+    // Cancel retry tracking - response received
+    cancelCommandRetry();
+    
     quint8 valveStates = static_cast<quint8>(data[0]);
     quint8 status = static_cast<quint8>(data[1]);
     
@@ -793,6 +847,9 @@ void CANController::processOutputResponse(const QByteArray &data)
         return;
     }
     
+    // Cancel retry tracking - response received
+    cancelCommandRetry();
+    
     quint8 outputStates = static_cast<quint8>(data[0]) & 0x07;  // Bits 0-2 only
     quint8 status = static_cast<quint8>(data[1]);
     
@@ -822,6 +879,9 @@ void CANController::processConfigAck(const QByteArray &data)
     
     if (data.size() < 2) {
         qWarning() << "[CAN] Config ACK: insufficient data";
+    // Cancel retry tracking - ACK received
+    cancelCommandRetry();
+    
         return;
     }
     
@@ -945,4 +1005,68 @@ quint16 CANController::bytesToUint16(const QByteArray &data, int offset) const
     
     return static_cast<quint8>(data[offset])
          | (static_cast<quint8>(data[offset + 1]) << 8);
+}
+
+void CANController::startCommandRetry(quint32 commandId, const QByteArray &commandData, const QString &commandName)
+{
+    // Store pending command for retry
+    m_pendingCommand.canId = commandId;
+    m_pendingCommand.data = commandData;
+    m_pendingCommand.name = commandName;
+    m_pendingCommand.retryCount = 0;
+    m_pendingCommand.active = true;
+    
+    // Start response timeout timer (1 second)
+    m_commandResponseTimer->start(COMMAND_RESPONSE_TIMEOUT_MS);
+    
+    qDebug() << "[CAN] Started retry tracking for" << commandName;
+}
+
+void CANController::cancelCommandRetry()
+{
+    if (!m_pendingCommand.active) {
+        return;
+    }
+    
+    // Cancel timeout timer
+    m_commandResponseTimer->stop();
+    
+    // Clear pending command
+    m_pendingCommand.active = false;
+    m_pendingCommand.retryCount = 0;
+    
+    qDebug() << "[CAN] Cancelled retry tracking for" << m_pendingCommand.name;
+}
+
+void CANController::onCommandResponseTimeout()
+{
+    if (!m_pendingCommand.active) {
+        return;
+    }
+    
+    m_pendingCommand.retryCount++;
+    
+    qWarning() << "[CAN]" << m_pendingCommand.name << "timeout (retry" 
+               << m_pendingCommand.retryCount << "of" << COMMAND_RETRY_MAX << ")";
+    
+    if (m_pendingCommand.retryCount < COMMAND_RETRY_MAX) {
+        // Retry: resend command
+        QThread::msleep(COMMAND_RETRY_INTERVAL_MS);  // Wait 500ms between retries
+        
+        if (sendCANFrame(m_pendingCommand.canId, m_pendingCommand.data)) {
+            // Restart timeout timer
+            m_commandResponseTimer->start(COMMAND_RESPONSE_TIMEOUT_MS);
+            qInfo() << "[CAN] Retrying" << m_pendingCommand.name;
+        } else {
+            // Failed to send retry
+            emit commandFailed(QString("%1 retry failed: Cannot send CAN frame").arg(m_pendingCommand.name));
+            cancelCommandRetry();
+        }
+    } else {
+        // Max retries exhausted
+        emit commandFailed(QString("%1 failed after %2 retries: No response from IO Module")
+                          .arg(m_pendingCommand.name).arg(COMMAND_RETRY_MAX));
+        qCritical() << "[CAN]" << m_pendingCommand.name << "FAILED after" << COMMAND_RETRY_MAX << "retries";
+        cancelCommandRetry();
+    }
 }

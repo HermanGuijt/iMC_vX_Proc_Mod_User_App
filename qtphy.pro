@@ -7,12 +7,14 @@ SOURCES += \
     src/main.cpp \
     src/device_info.cpp \
     src/rauc.cpp \
-    src/can_controller.cpp
+    src/can_controller.cpp \
+    src/can_logger.cpp
 
 HEADERS += \
     src/device_info.hpp \
     src/rauc.hpp \
-    src/can_controller.hpp
+    src/can_controller.hpp \
+    src/can_logger.hpp
 
 qmlsink {
     PKGCONFIG = gstreamer-1.0

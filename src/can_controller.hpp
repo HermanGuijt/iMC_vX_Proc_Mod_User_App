@@ -17,6 +17,9 @@
 #include <QString>
 #include <QDateTime>
 
+// Forward declaration
+class CANLogger;
+
 /**
  * @brief Sensor Data Model
  * Holds all sensor readings from IO Module
@@ -179,6 +182,7 @@ private slots:
     void onCANReadable();
     void onHeartbeatTimer();
     void onHealthCheckTimer();
+    void onCommandResponseTimeout();
     
 private:
     // ── CAN Socket Management ───────────────────────────────────────────────
@@ -213,12 +217,16 @@ private:
     void updateIOModuleOnlineStatus();
     float bytesToFloat(const QByteArray &data, int offset) const;
     quint16 bytesToUint16(const QByteArray &data, int offset) const;
+    void startCommandRetry(quint32 commandId, const QByteArray &commandData, const QString &commandName);
+    void cancelCommandRetry();
     
     // ── State ───────────────────────────────────────────────────────────────
     int m_socketFd;
     QSocketNotifier *m_socketNotifier;
     QTimer *m_heartbeatTimer;
     QTimer *m_healthCheckTimer;
+    QTimer *m_commandResponseTimer;
+    CANLogger *m_logger;
     QString m_status;
     bool m_initialized;
     QString m_currentInterface;
@@ -228,6 +236,17 @@ private:
     SensorData m_sensorData;
     ActuatorState m_actuatorState;
     IOModuleHealth m_ioHealth;
+    
+    // Command Retry State
+    struct PendingCommand {
+        quint32 canId;
+        QByteArray data;
+        QString name;
+        int retryCount;
+        bool active;
+        
+        PendingCommand() : canId(0), retryCount(0), active(false) {}
+    } m_pendingCommand;
     
     // ── CAN Protocol Constants (per CAN_Interface_Common.md) ────────────────
     
@@ -263,6 +282,9 @@ private:
     static constexpr int HEARTBEAT_INTERVAL_MS = 5000;  // 5 seconds
     static constexpr int HEALTH_CHECK_INTERVAL_MS = 1000;  // 1 second
     static constexpr int IO_HEARTBEAT_TIMEOUT_MS = 15000;  // 15 seconds (3× heartbeat)
+    static constexpr int COMMAND_RESPONSE_TIMEOUT_MS = 1000;  // 1 second
+    static constexpr int COMMAND_RETRY_MAX = 3;  // Max 3 retries
+    static constexpr int COMMAND_RETRY_INTERVAL_MS = 500;  // 500ms between retries
     
     // Node Types
     static constexpr quint8 NODE_TYPE_IO_MODULE = 0x01;
