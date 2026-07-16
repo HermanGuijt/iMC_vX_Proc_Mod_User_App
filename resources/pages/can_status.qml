@@ -23,24 +23,17 @@ Page {
         buttonMenu.visible: false
     }
 
-    // CAN Controller instance
-    CANController {
-        id: canController
+    // Connect to global CAN controller (initialized in main.cpp)
+    Connections {
+        target: canController
         
-        Component.onCompleted: {
-            // Initialize CAN interface on page load (10 kbit/s per spec)
-            if (!canController.initialized) {
-                canController.initCAN("can1", 10000)
-            }
-        }
-        
-        onErrorOccurred: function(error) {
+        function onErrorOccurred(error) {
             errorText.text = error
             errorText.visible = true
             errorTimer.start()
         }
         
-        onCommandSuccess: function(message) {
+        function onCommandSuccess(message) {
             successText.text = message
             successText.visible = true
             successTimer.start()

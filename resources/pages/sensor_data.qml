@@ -17,24 +17,30 @@ Page {
     id: sensorPage
     background: Rectangle { color: PhyTheme.bgDark }
 
+    Component.onCompleted: {
+        console.log("[QML DEBUG] sensor_data.qml loaded")
+        console.log("[QML DEBUG] canController:", canController)
+        console.log("[QML DEBUG] moistureSensors:", canController.moistureSensors)
+        console.log("[QML DEBUG] sensorDataValid:", canController.sensorDataValid)
+    }
+
+    Connections {
+        target: canController
+        function onSensorDataChanged() {
+            console.log("[QML DEBUG] sensorDataChanged signal received!")
+            console.log("[QML DEBUG] moistureSensors:", canController.moistureSensors)
+        }
+    }
+
     header: PhyToolBar {
-        title: "Sensor Data"
+        title: "Ruwe Sensor Data"
         buttonBack.onClicked: stack.pop()
         buttonMenu.visible: false
     }
 
-    // CAN Controller instance
-    CANController {
-        id: canController
-        
-        Component.onCompleted: {
-            // Initialize CAN interface on page load
-            if (!canController.initialized) {
-                canController.initCAN("can1", 10000)
-            }
-        }
-    }
-
+    // Use global CAN controller (initialized in main.cpp)
+    // Access via 'canController' context property
+    
     // ── Main Layout ──────────────────────────────────────────────────────────
     ScrollView {
         anchors.fill: parent
@@ -62,7 +68,7 @@ Page {
                         Layout.fillWidth: true
                         
                         Label {
-                            text: "Moisture Sensors (8×)"
+                            text: "Voltage Inputs (8×)"
                             font.bold: true
                             color: PhyTheme.white
                             font.pointSize: PhyTheme.font.pointSize * 0.72
@@ -106,20 +112,18 @@ Page {
                                     spacing: 4
                                     
                                     Label {
-                                        text: "Moisture " + index
-                                        color: PhyTheme.gray2
+                                        text: "Voltage " + index
+                                        color: "#b2d8c2"  // PhyTheme.gray2
                                         font.pointSize: PhyTheme.font.pointSize * 0.5
                                     }
                                     
                                     Label {
-                                        text: canController.moistureSensors[index] 
-                                            ? canController.moistureSensors[index].toFixed(1) + " %"
-                                            : "---"
-                                        color: canController.sensorDataValid 
-                                            ? PhyTheme.white 
-                                            : PhyTheme.gray3
-                                        font.pointSize: PhyTheme.font.pointSize * 0.65
+                                        property var voltageData: canController.moistureSensors
+                                        text: voltageData && index < voltageData.length && voltageData[index] !== undefined ? Number(voltageData[index]).toFixed(2) + " V" : "---"
+                                        color: "#52b788"  // PhyTheme.teal1 (bright green)
+                                        font.pointSize: PhyTheme.font.pointSize * 0.7
                                         font.bold: true
+                                        Layout.fillWidth: true
                                     }
                                 }
                             }
@@ -148,7 +152,7 @@ Page {
                     spacing: PhyTheme.marginRegular
 
                     Label {
-                        text: "Pressure Sensors (3×)"
+                        text: "Current Inputs (3×)"
                         font.bold: true
                         color: PhyTheme.white
                         font.pointSize: PhyTheme.font.pointSize * 0.72
@@ -173,15 +177,19 @@ Page {
                                     spacing: 6
                                     
                                     Label {
-                                        text: "Pressure " + index
+                                        text: "Current " + index
                                         color: PhyTheme.gray2
                                         font.pointSize: PhyTheme.font.pointSize * 0.5
                                     }
                                     
                                     Label {
-                                        text: canController.pressureSensors[index]
-                                            ? canController.pressureSensors[index].toFixed(1) + " mbar"
-                                            : "---"
+                                        property var currentData: canController.pressureSensors
+                                        text: {
+                                            if (currentData && index < currentData.length && currentData[index] !== undefined) {
+                                                return currentData[index].toFixed(2) + " mA"
+                                            }
+                                            return "---"
+                                        }
                                         color: canController.sensorDataValid 
                                             ? PhyTheme.teal1 
                                             : PhyTheme.gray3
@@ -215,7 +223,7 @@ Page {
                     spacing: PhyTheme.marginRegular
 
                     Label {
-                        text: "Temperature Sensor"
+                        text: "Resistor Input"
                         font.bold: true
                         color: PhyTheme.white
                         font.pointSize: PhyTheme.font.pointSize * 0.72
@@ -233,7 +241,7 @@ Page {
                             
                             Label {
                                 text: canController.temperatureSensor
-                                    ? canController.temperatureSensor.toFixed(1) + " °C"
+                                    ? canController.temperatureSensor.toFixed(1) + " Ω"
                                     : "---"
                                 Layout.alignment: Qt.AlignHCenter
                                 color: canController.sensorDataValid 
@@ -287,6 +295,9 @@ Page {
                                 radius: 6
                                 color: PhyTheme.bgDarker
                                 
+                                property var inputData: canController.binaryInputs
+                                property bool inputState: inputData && index < inputData.length ? inputData[index] : false
+                                
                                 ColumnLayout {
                                     anchors.centerIn: parent
                                     spacing: 8
@@ -303,19 +314,19 @@ Page {
                                         height: 20
                                         radius: 10
                                         Layout.alignment: Qt.AlignHCenter
-                                        color: canController.binaryInputs[index] 
+                                        color: parent.parent.inputState
                                             ? PhyTheme.teal1 
                                             : PhyTheme.gray4
-                                        border.color: canController.binaryInputs[index]
+                                        border.color: parent.parent.inputState
                                             ? PhyTheme.teal2
                                             : PhyTheme.gray3
                                         border.width: 2
                                     }
                                     
                                     Label {
-                                        text: canController.binaryInputs[index] ? "HIGH" : "LOW"
+                                        text: parent.parent.inputState ? "HIGH" : "LOW"
                                         Layout.alignment: Qt.AlignHCenter
-                                        color: canController.binaryInputs[index]
+                                        color: parent.parent.inputState
                                             ? PhyTheme.teal1
                                             : PhyTheme.gray3
                                         font.pointSize: PhyTheme.font.pointSize * 0.5

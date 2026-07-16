@@ -23,25 +23,18 @@ Page {
         buttonMenu.visible: false
     }
 
-    // CAN Controller instance
-    CANController {
-        id: canController
+    // Use global CAN controller (initialized in main.cpp)
+    Connections {
+        target: canController
         
-        Component.onCompleted: {
-            // Initialize CAN interface on page load
-            if (!canController.initialized) {
-                canController.initCAN("can1", 10000)
-            }
-        }
-        
-        onCommandSuccess: function(message) {
+        function onCommandSuccess(message) {
             feedback.text = "✓ " + message
             feedback.messageType = "success"
             feedback.visible = true
             feedbackTimer.restart()
         }
         
-        onCommandFailed: function(error) {
+        function onCommandFailed(error) {
             feedback.text = "✗ " + error
             feedback.messageType = "error"
             feedback.visible = true
@@ -230,18 +223,21 @@ Page {
                                             implicitWidth: 150
                                             implicitHeight: 38
                                             radius: 6
+                                            opacity: openBtn.enabled ? 1.0 : 0.4
                                             color: openBtn.touching
-                                                ? (openBtn.enabled ? Qt.darker(PhyTheme.teal2, 1.4) : PhyTheme.gray4)
-                                                : (openBtn.enabled ? PhyTheme.teal2 : PhyTheme.gray4)
-                                            border.color: openBtn.enabled ? PhyTheme.teal1 : PhyTheme.gray3
+                                                ? (openBtn.enabled ? Qt.darker(PhyTheme.teal2, 1.4) : "#505050")
+                                                : (openBtn.enabled ? PhyTheme.teal2 : "#505050")
+                                            border.color: openBtn.enabled ? PhyTheme.teal1 : "#606060"
                                             border.width: 2
                                             
                                             Behavior on color { ColorAnimation { duration: 80 } }
+                                            Behavior on opacity { NumberAnimation { duration: 150 } }
                                         }
                                         
                                         contentItem: Text {
                                             text: parent.text
-                                            color: parent.enabled ? PhyTheme.white : PhyTheme.gray2
+                                            color: parent.enabled ? PhyTheme.white : "#808080"
+                                            opacity: parent.enabled ? 1.0 : 0.6
                                             font.pointSize: PhyTheme.font.pointSize * 0.5
                                             font.bold: true
                                             horizontalAlignment: Text.AlignHCenter
@@ -269,18 +265,21 @@ Page {
                                             implicitWidth: 150
                                             implicitHeight: 38
                                             radius: 6
+                                            opacity: closeBtn.enabled ? 1.0 : 0.4
                                             color: closeBtn.touching
-                                                ? (closeBtn.enabled ? Qt.darker(PhyTheme.gray5, 1.4) : PhyTheme.gray4)
-                                                : (closeBtn.enabled ? PhyTheme.gray5 : PhyTheme.gray4)
-                                            border.color: closeBtn.enabled ? PhyTheme.gray3 : PhyTheme.gray3
+                                                ? (closeBtn.enabled ? Qt.darker(PhyTheme.gray5, 1.4) : "#505050")
+                                                : (closeBtn.enabled ? PhyTheme.gray5 : "#505050")
+                                            border.color: closeBtn.enabled ? PhyTheme.gray3 : "#606060"
                                             border.width: 2
                                             
                                             Behavior on color { ColorAnimation { duration: 80 } }
+                                            Behavior on opacity { NumberAnimation { duration: 150 } }
                                         }
                                         
                                         contentItem: Text {
                                             text: parent.text
-                                            color: parent.enabled ? PhyTheme.white : PhyTheme.gray2
+                                            color: parent.enabled ? PhyTheme.white : "#808080"
+                                            opacity: parent.enabled ? 1.0 : 0.6
                                             font.pointSize: PhyTheme.font.pointSize * 0.5
                                             font.bold: true
                                             horizontalAlignment: Text.AlignHCenter
@@ -365,18 +364,21 @@ Page {
                                 implicitWidth: 120
                                 implicitHeight: 38
                                 radius: 6
+                                opacity: allOffBtn.enabled ? 1.0 : 0.4
                                 color: allOffBtn.touching
-                                    ? (allOffBtn.enabled ? Qt.darker("#d63031", 1.4) : PhyTheme.gray4)
-                                    : (allOffBtn.enabled ? "#d63031" : PhyTheme.gray4)
-                                border.color: allOffBtn.enabled ? "#c0392b" : PhyTheme.gray3
+                                    ? (allOffBtn.enabled ? Qt.darker("#d63031", 1.4) : "#505050")
+                                    : (allOffBtn.enabled ? "#d63031" : "#505050")
+                                border.color: allOffBtn.enabled ? "#c0392b" : "#606060"
                                 border.width: 2
                                 
                                 Behavior on color { ColorAnimation { duration: 80 } }
+                                Behavior on opacity { NumberAnimation { duration: 150 } }
                             }
                             
                             contentItem: Text {
                                 text: parent.text
-                                color: parent.enabled ? PhyTheme.white : PhyTheme.gray2
+                                color: parent.enabled ? PhyTheme.white : "#808080"
+                                opacity: parent.enabled ? 1.0 : 0.6
                                 font.pointSize: PhyTheme.font.pointSize * 0.5
                                 font.bold: true
                                 horizontalAlignment: Text.AlignHCenter
@@ -466,18 +468,21 @@ Page {
                                             implicitWidth: 150
                                             implicitHeight: 38
                                             radius: 6
+                                            opacity: onBtn.enabled ? 1.0 : 0.4
                                             color: onBtn.touching
-                                                ? (onBtn.enabled ? Qt.darker(PhyTheme.teal2, 1.4) : PhyTheme.gray4)
-                                                : (onBtn.enabled ? PhyTheme.teal2 : PhyTheme.gray4)
-                                            border.color: onBtn.enabled ? PhyTheme.teal1 : PhyTheme.gray3
+                                                ? (onBtn.enabled ? Qt.darker(PhyTheme.teal2, 1.4) : "#505050")
+                                                : (onBtn.enabled ? PhyTheme.teal2 : "#505050")
+                                            border.color: onBtn.enabled ? PhyTheme.teal1 : "#606060"
                                             border.width: 2
                                             
                                             Behavior on color { ColorAnimation { duration: 80 } }
+                                            Behavior on opacity { NumberAnimation { duration: 150 } }
                                         }
                                         
                                         contentItem: Text {
                                             text: parent.text
-                                            color: parent.enabled ? PhyTheme.white : PhyTheme.gray2
+                                            color: parent.enabled ? PhyTheme.white : "#808080"
+                                            opacity: parent.enabled ? 1.0 : 0.6
                                             font.pointSize: PhyTheme.font.pointSize * 0.5
                                             font.bold: true
                                             horizontalAlignment: Text.AlignHCenter
@@ -505,18 +510,21 @@ Page {
                                             implicitWidth: 150
                                             implicitHeight: 38
                                             radius: 6
+                                            opacity: offBtn.enabled ? 1.0 : 0.4
                                             color: offBtn.touching
-                                                ? (offBtn.enabled ? Qt.darker(PhyTheme.gray5, 1.4) : PhyTheme.gray4)
-                                                : (offBtn.enabled ? PhyTheme.gray5 : PhyTheme.gray4)
-                                            border.color: offBtn.enabled ? PhyTheme.gray3 : PhyTheme.gray3
+                                                ? (offBtn.enabled ? Qt.darker(PhyTheme.gray5, 1.4) : "#505050")
+                                                : (offBtn.enabled ? PhyTheme.gray5 : "#505050")
+                                            border.color: offBtn.enabled ? PhyTheme.gray3 : "#606060"
                                             border.width: 2
                                             
                                             Behavior on color { ColorAnimation { duration: 80 } }
+                                            Behavior on opacity { NumberAnimation { duration: 150 } }
                                         }
                                         
                                         contentItem: Text {
                                             text: parent.text
-                                            color: parent.enabled ? PhyTheme.white : PhyTheme.gray2
+                                            color: parent.enabled ? PhyTheme.white : "#808080"
+                                            opacity: parent.enabled ? 1.0 : 0.6
                                             font.pointSize: PhyTheme.font.pointSize * 0.5
                                             font.bold: true
                                             horizontalAlignment: Text.AlignHCenter
