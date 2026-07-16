@@ -16,6 +16,7 @@
         <file>images/background.jpg</file>
         <file>images/company.jpg</file>
         <file>pages/about.qml</file>
+        <file>pages/actuator_control.qml</file>
         <file>pages/can_status.qml</file>
         <file>pages/dashboard.qml</file>
         <file>pages/device_info.qml</file>
@@ -23,6 +24,7 @@
         <file>pages/multimedia.qml</file>
         <file>pages/multitouch.qml</file>
         <file>pages/rauc.qml</file>
+        <file>pages/sensor_data.qml</file>
         <file>pages/widget_factory.qml</file>
         <file>themes/PhyTheme/PhyTheme.qml</file>
         <file>themes/PhyTheme/qmldir</file>

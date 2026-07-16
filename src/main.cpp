@@ -74,12 +74,17 @@ int main(int argc, char *argv[])
     qmlRegisterType<Rauc>("Phytec.Rauc", 1, 0, "Rauc");
     qmlRegisterType<CANController>("HBWT.CAN", 1, 0, "CANController");
 
+    // Create global CAN controller instance and initialize at app start
+    CANController *canController = new CANController(&app);
+    canController->initCAN("can1", 10000);  // Initialize CAN1 at 10 kbps (IO module connected here)
+
     QQmlApplicationEngine engine;
     engine.addImportPath("qrc:///themes");
     engine.rootContext()->setContextProperty("raucHawkbitConfigPath",
                                              parser.value("rauc-hawkbit-config"));
     engine.rootContext()->setContextProperty("enabledPages", enabledPages);
     engine.rootContext()->setContextProperty("multimediaPage", "multimedia.qml");
+    engine.rootContext()->setContextProperty("canController", canController);
 #ifdef QML_SINK
     MultimediaGST *multimediaGST = new MultimediaGST(&app, argc, argv);
     engine.rootContext()->setContextProperty("multimediaPage", "multimedia_qmlsink.qml");

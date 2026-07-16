@@ -2,7 +2,8 @@
  * SPDX-License-Identifier: MIT
  * Copyright (c) 2026 HB Watertechnologie — www.EmbedTech.nl
  * 
- * CAN Bus Status and Node Discovery Page
+ * CAN Bus Status and IO Module Health Page
+ * Per CAN_Interface_Proc.md Section 9.1
  */
 
 import QtQuick 2.15
@@ -22,27 +23,20 @@ Page {
         buttonMenu.visible: false
     }
 
-    // CAN Controller instance
-    CANController {
-        id: canController
+    // Connect to global CAN controller (initialized in main.cpp)
+    Connections {
+        target: canController
         
-        Component.onCompleted: {
-            // Initialize CAN interface on page load
-            if (!canController.initialized) {
-                canController.initCAN("can0", 500000)
-            }
-        }
-        
-        onScanComplete: function(nodeCount) {
-            scanResultText.text = nodeCount > 0 
-                ? `Gevonden: ${nodeCount} node${nodeCount > 1 ? 's' : ''}`
-                : "Geen nodes gevonden"
-        }
-        
-        onErrorOccurred: function(error) {
+        function onErrorOccurred(error) {
             errorText.text = error
             errorText.visible = true
             errorTimer.start()
+        }
+        
+        function onCommandSuccess(message) {
+            successText.text = message
+            successText.visible = true
+            successTimer.start()
         }
     }
 
@@ -51,6 +45,31 @@ Page {
         id: errorTimer
         interval: 5000
         onTriggered: errorText.visible = false
+    }
+
+    // Hide success message after 3 seconds
+    Timer {
+        id: successTimer
+        interval: 3000
+        onTriggered: successText.visible = false
+    }
+
+    // Format uptime in human-readable format
+    function formatUptime(seconds) {
+        if (seconds === 0) return "N/A"
+        
+        var days = Math.floor(seconds / 86400)
+        var hours = Math.floor((seconds % 86400) / 3600)
+        var mins = Math.floor((seconds % 3600) / 60)
+        var secs = seconds % 60
+        
+        var parts = []
+        if (days > 0) parts.push(days + "d")
+        if (hours > 0) parts.push(hours + "h")
+        if (mins > 0) parts.push(mins + "m")
+        if (secs > 0 || parts.length === 0) parts.push(secs + "s")
+        
+        return parts.join(" ")
     }
 
     // ── Main Layout ──────────────────────────────────────────────────────────
@@ -63,7 +82,7 @@ Page {
             width: parent.width - PhyTheme.marginBig * 2
             spacing: PhyTheme.marginBig
 
-            // ── Status Card ──────────────────────────────────────────────────
+            // ── CAN Interface Status ────────────────────────────────────────
             Rectangle {
                 Layout.fillWidth: true
                 implicitHeight: statusCol.implicitHeight + PhyTheme.marginBig * 2
@@ -77,7 +96,7 @@ Page {
                     spacing: PhyTheme.marginRegular
 
                     Label {
-                        text: "Interface Status"
+                        text: "CAN Interface"
                         font.bold: true
                         color: PhyTheme.white
                         font.pointSize: PhyTheme.font.pointSize * 0.72
@@ -107,6 +126,58 @@ Page {
                         }
                     }
 
+                    // Interface settings
+                    GridLayout {
+                        Layout.fillWidth: true
+                        columns: 2
+                        columnSpacing: PhyTheme.marginBig
+                        rowSpacing: 6
+
+                        Label {
+                            text: "Interface:"
+                            color: PhyTheme.gray2
+                            font.pointSize: PhyTheme.font.pointSize * 0.5
+                        }
+                        
+                        Label {
+                            text: "can1"
+                            color: PhyTheme.white
+                            font.pointSize: PhyTheme.font.pointSize * 0.5
+                            font.bold: true
+                        }
+
+                        Label {
+                            text: "Bitrate:"
+                            color: PhyTheme.gray2
+                            font.pointSize: PhyTheme.font.pointSize * 0.5
+                        }
+                        
+                        Label {
+                            text: "10 kbit/s"
+                            color: PhyTheme.white
+                            font.pointSize: PhyTheme.font.pointSize * 0.5
+                            font.bold: true
+                        }
+                    }
+
+                    // Success message
+                    Label {
+                        id: successText
+                        Layout.fillWidth: true
+                        visible: false
+                        text: ""
+                        color: PhyTheme.teal1
+                        wrapMode: Text.WordWrap
+                        font.pointSize: PhyTheme.font.pointSize * 0.5
+                        background: Rectangle {
+                            color: "#1f3d2f"
+                            radius: 6
+                            border.color: PhyTheme.teal1
+                            border.width: 1
+                        }
+                        padding: 10
+                    }
+
                     // Error display
                     Label {
                         id: errorText
@@ -124,54 +195,20 @@ Page {
                         }
                         padding: 10
                     }
-
-                    // Scan button
-                    Button {
-                        Layout.alignment: Qt.AlignLeft
-                        text: canController.scanning ? "Scanning..." : "Scan CAN Bus"
-                        enabled: canController.initialized && !canController.scanning
-                        font.pointSize: PhyTheme.font.pointSize * 0.55
-                        
-                        background: Rectangle {
-                            implicitWidth: 180
-                            implicitHeight: 44
-                            radius: 8
-                            color: parent.enabled ? PhyTheme.teal2 : PhyTheme.gray4
-                            border.color: parent.enabled ? PhyTheme.teal1 : PhyTheme.gray3
-                            border.width: 1
-                        }
-                        
-                        contentItem: Text {
-                            text: parent.text
-                            color: parent.enabled ? PhyTheme.white : PhyTheme.gray2
-                            font: parent.font
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
-                        }
-                        
-                        onClicked: canController.scanBus()
-                    }
-
-                    // Scan result
-                    Label {
-                        id: scanResultText
-                        text: ""
-                        color: PhyTheme.gray2
-                        font.pointSize: PhyTheme.font.pointSize * 0.5
-                        visible: text !== ""
-                    }
                 }
             }
 
-            // ── Discovered Nodes ────────────────────────────────────────────
+            // ── IO Module Health ────────────────────────────────────────────
             Rectangle {
                 Layout.fillWidth: true
-                Layout.fillHeight: true
-                Layout.minimumHeight: 300
+                implicitHeight: ioModuleCol.implicitHeight + PhyTheme.marginBig * 2
                 radius: 10
                 color: PhyTheme.cardDark
+                border.color: canController.ioModuleOnline ? PhyTheme.teal2 : "#ff6b6b"
+                border.width: 2
 
                 ColumnLayout {
+                    id: ioModuleCol
                     anchors.fill: parent
                     anchors.margins: PhyTheme.marginBig
                     spacing: PhyTheme.marginRegular
@@ -180,7 +217,7 @@ Page {
                         Layout.fillWidth: true
                         
                         Label {
-                            text: "Ontdekte Nodes"
+                            text: "IO Module Status"
                             font.bold: true
                             color: PhyTheme.white
                             font.pointSize: PhyTheme.font.pointSize * 0.72
@@ -188,149 +225,201 @@ Page {
                         
                         Item { Layout.fillWidth: true }
                         
+                        // Online indicator
+                        RowLayout {
+                            spacing: 8
+                            
+                            Rectangle {
+                                width: 14; height: 14
+                                radius: 7
+                                color: canController.ioModuleOnline ? PhyTheme.teal1 : "#ff6b6b"
+                                
+                                SequentialAnimation on opacity {
+                                    running: canController.ioModuleOnline
+                                    loops: Animation.Infinite
+                                    NumberAnimation { from: 1.0; to: 0.4; duration: 1000 }
+                                    NumberAnimation { from: 0.4; to: 1.0; duration: 1000 }
+                                }
+                            }
+                            
+                            Label {
+                                text: canController.ioModuleOnline ? "ONLINE" : "OFFLINE"
+                                color: canController.ioModuleOnline ? PhyTheme.teal1 : "#ff6b6b"
+                                font.pointSize: PhyTheme.font.pointSize * 0.6
+                                font.bold: true
+                            }
+                        }
+                    }
+
+                    // Firmware version
+                    GridLayout {
+                        Layout.fillWidth: true
+                        columns: 2
+                        columnSpacing: PhyTheme.marginBig
+                        rowSpacing: 10
+
                         Label {
-                            text: canController.discoveredCount + " node(s)"
-                            color: PhyTheme.teal1
-                            font.pointSize: PhyTheme.font.pointSize * 0.6
+                            text: "Firmware Version:"
+                            color: PhyTheme.gray2
+                            font.pointSize: PhyTheme.font.pointSize * 0.52
+                        }
+                        
+                        Label {
+                            text: canController.ioModuleVersion !== "" 
+                                ? canController.ioModuleVersion 
+                                : "N/A"
+                            color: PhyTheme.white
+                            font.pointSize: PhyTheme.font.pointSize * 0.52
                             font.bold: true
                         }
-                    }
 
-                    // Table header
-                    Rectangle {
-                        Layout.fillWidth: true
-                        height: 36
-                        radius: 6
-                        color: PhyTheme.teal3
-
-                        RowLayout {
-                            anchors.fill: parent
-                            anchors.leftMargin: 12
-                            anchors.rightMargin: 12
-                            spacing: 8
-
-                            Label {
-                                Layout.preferredWidth: 50
-                                text: "ID"
-                                color: PhyTheme.white
-                                font.bold: true
-                                font.pointSize: PhyTheme.font.pointSize * 0.5
-                            }
-                            Label {
-                                Layout.fillWidth: true
-                                text: "Type"
-                                color: PhyTheme.white
-                                font.bold: true
-                                font.pointSize: PhyTheme.font.pointSize * 0.5
-                            }
-                            Label {
-                                Layout.preferredWidth: 80
-                                text: "Firmware"
-                                color: PhyTheme.white
-                                font.bold: true
-                                font.pointSize: PhyTheme.font.pointSize * 0.5
-                            }
-                            Label {
-                                Layout.preferredWidth: 80
-                                text: "Status"
-                                color: PhyTheme.white
-                                font.bold: true
-                                font.pointSize: PhyTheme.font.pointSize * 0.5
-                            }
-                        }
-                    }
-
-                    // Node list
-                    ListView {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        clip: true
-                        spacing: 6
-                        
-                        model: canController.nodes
-                        
-                        delegate: Rectangle {
-                            width: ListView.view.width
-                            height: 50
-                            radius: 6
-                            color: index % 2 === 0 ? "#1a2a30" : "#152328"
-                            border.color: PhyTheme.teal3
-                            border.width: 1
-
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.leftMargin: 12
-                                anchors.rightMargin: 12
-                                spacing: 8
-
-                                Label {
-                                    Layout.preferredWidth: 50
-                                    text: String(modelData.nodeId).padStart(3, '0')
-                                    color: PhyTheme.teal1
-                                    font.bold: true
-                                    font.pointSize: PhyTheme.font.pointSize * 0.55
-                                }
-                                
-                                Label {
-                                    Layout.fillWidth: true
-                                    text: modelData.deviceTypeName
-                                    color: PhyTheme.gray1
-                                    font.pointSize: PhyTheme.font.pointSize * 0.52
-                                    elide: Text.ElideRight
-                                }
-                                
-                                Label {
-                                    Layout.preferredWidth: 80
-                                    text: modelData.fwVersion
-                                    color: PhyTheme.gray2
-                                    font.pointSize: PhyTheme.font.pointSize * 0.5
-                                }
-                                
-                                Rectangle {
-                                    Layout.preferredWidth: 80
-                                    height: 26
-                                    radius: 4
-                                    color: {
-                                        if (modelData.status === 0) return "#1a4d2e"      // OK - dark green
-                                        if (modelData.status === 1) return "#4d3a1a"      // Warning - dark orange
-                                        if (modelData.status === 2) return "#4d1a1a"      // Error - dark red
-                                        return PhyTheme.gray4                              // Unknown - gray
-                                    }
-                                    border.color: {
-                                        if (modelData.status === 0) return PhyTheme.teal1  // OK
-                                        if (modelData.status === 1) return "#f39c12"       // Warning
-                                        if (modelData.status === 2) return "#e74c3c"       // Error
-                                        return PhyTheme.gray3
-                                    }
-                                    border.width: 1
-
-                                    Label {
-                                        anchors.centerIn: parent
-                                        text: modelData.statusText
-                                        color: parent.border.color
-                                        font.pointSize: PhyTheme.font.pointSize * 0.48
-                                        font.bold: true
-                                    }
-                                }
-                            }
-                        }
-
-                        // Empty state
+                        // Uptime
                         Label {
-                            anchors.centerIn: parent
-                            visible: canController.discoveredCount === 0
-                            text: canController.initialized 
-                                ? "Druk op 'Scan CAN Bus' om nodes te detecteren"
-                                : "CAN interface niet geïnitialiseerd"
-                            color: PhyTheme.gray3
+                            text: "Uptime:"
+                            color: PhyTheme.gray2
+                            font.pointSize: PhyTheme.font.pointSize * 0.52
+                        }
+                        
+                        Label {
+                            text: formatUptime(canController.ioModuleUptime)
+                            color: PhyTheme.white
+                            font.pointSize: PhyTheme.font.pointSize * 0.52
+                            font.bold: true
+                        }
+
+                        // State
+                        Label {
+                            text: "Current State:"
+                            color: PhyTheme.gray2
+                            font.pointSize: PhyTheme.font.pointSize * 0.52
+                        }
+                        
+                        RowLayout {
+                            spacing: 8
+                            
+                            Rectangle {
+                                width: 24; height: 24
+                                radius: 4
+                                color: {
+                                    if (canController.ioModuleState === 0) return "#1a4d2e"      // Init - green
+                                    if (canController.ioModuleState === 1) return "#1a3a4d"      // Ready - blue
+                                    if (canController.ioModuleState === 2) return "#4d3a1a"      // Error - orange
+                                    return PhyTheme.gray4                                        // Unknown - gray
+                                }
+                                border.color: {
+                                    if (canController.ioModuleState === 0) return PhyTheme.teal1
+                                    if (canController.ioModuleState === 1) return "#3498db"
+                                    if (canController.ioModuleState === 2) return "#f39c12"
+                                    return PhyTheme.gray3
+                                }
+                                border.width: 1
+
+                                Label {
+                                    anchors.centerIn: parent
+                                    text: canController.ioModuleState.toString()
+                                    color: parent.border.color
+                                    font.pointSize: PhyTheme.font.pointSize * 0.5
+                                    font.bold: true
+                                }
+                            }
+                            
+                            Label {
+                                text: canController.ioModuleStateText
+                                color: PhyTheme.white
+                                font.pointSize: PhyTheme.font.pointSize * 0.52
+                                font.bold: true
+                            }
+                        }
+                    }
+
+                    // Action buttons
+                    RowLayout {
+                        Layout.alignment: Qt.AlignLeft
+                        Layout.topMargin: 10
+                        spacing: 10
+                        
+                        Button {
+                            id: requestStatusBtn
+                            text: "Request Status"
+                            enabled: canController.initialized
                             font.pointSize: PhyTheme.font.pointSize * 0.55
-                            horizontalAlignment: Text.AlignHCenter
+                            
+                            property bool touching: false
+                            
+                            scale: touching ? 0.95 : 1.0
+                            Behavior on scale { NumberAnimation { duration: 100 } }
+                            
+                            background: Rectangle {
+                                implicitWidth: 160
+                                implicitHeight: 45
+                                radius: 6
+                                color: requestStatusBtn.touching
+                                    ? (requestStatusBtn.enabled ? Qt.darker(PhyTheme.teal2, 1.4) : PhyTheme.gray4)
+                                    : (requestStatusBtn.enabled ? PhyTheme.teal2 : PhyTheme.gray4)
+                                border.color: requestStatusBtn.enabled ? PhyTheme.teal1 : PhyTheme.gray3
+                                border.width: 2
+                                
+                                Behavior on color { ColorAnimation { duration: 80 } }
+                            }
+                            
+                            contentItem: Text {
+                                text: parent.text
+                                color: parent.enabled ? PhyTheme.white : PhyTheme.gray2
+                                font.pointSize: PhyTheme.font.pointSize * 0.55
+                                font.bold: true
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                            
+                            onPressed: touching = true
+                            onReleased: touching = false
+                            onCanceled: touching = false
+                            onClicked: canController.requestStatus()
+                        }
+                        
+                        Button {
+                            id: resetCanBtn
+                            text: "Reset CAN Bus"
+                            enabled: canController.initialized
+                            font.pointSize: PhyTheme.font.pointSize * 0.55
+                            
+                            property bool touching: false
+                            
+                            scale: touching ? 0.95 : 1.0
+                            Behavior on scale { NumberAnimation { duration: 100 } }
+                            
+                            background: Rectangle {
+                                implicitWidth: 160
+                                implicitHeight: 45
+                                radius: 6
+                                color: resetCanBtn.touching
+                                    ? (resetCanBtn.enabled ? Qt.darker("#e67e22", 1.4) : PhyTheme.gray4)
+                                    : (resetCanBtn.enabled ? "#e67e22" : PhyTheme.gray4)
+                                border.color: resetCanBtn.enabled ? "#d35400" : PhyTheme.gray3
+                                border.width: 2
+                                
+                                Behavior on color { ColorAnimation { duration: 80 } }
+                            }
+                            
+                            contentItem: Text {
+                                text: parent.text
+                                color: parent.enabled ? PhyTheme.white : PhyTheme.gray2
+                                font.pointSize: PhyTheme.font.pointSize * 0.55
+                                font.bold: true
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                            
+                            onPressed: touching = true
+                            onReleased: touching = false
+                            onCanceled: touching = false
+                            onClicked: canController.resetCAN()
                         }
                     }
                 }
             }
 
-            // Spacer
+            // Footer spacer
             Item { implicitHeight: PhyTheme.marginBig }
         }
     }
